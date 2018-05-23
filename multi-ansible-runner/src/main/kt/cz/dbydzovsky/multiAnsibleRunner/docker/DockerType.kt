@@ -1,5 +1,5 @@
 package cz.dbydzovsky.multiAnsibleRunner.docker
 
 enum class DockerType {
-    DockerForWindows, DockerToolbox
+    DockerForWindows, DockerToolbox, DockerLinux, None
 }

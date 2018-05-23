@@ -8,8 +8,7 @@ class AnsibleRun {
 
     var hosts: String? = null
 
-    /**
-     * Pair<String, String> ~ source:target
-     */
-    var sharedFolders: MutableList<Pair<String, String>> = mutableListOf()
+    fun toCommand(): String {
+        return "$playbook -i $hosts"
+    }
 }
