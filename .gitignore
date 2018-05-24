@@ -24,3 +24,4 @@ hs_err_pid*
 
 .idea/*
 multi-ansible-runner/multi-ansible-runner.iml
+multi-ansible-runner/target

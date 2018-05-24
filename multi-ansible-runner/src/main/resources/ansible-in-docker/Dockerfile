@@ -1,6 +1,6 @@
 # from https://github.com/walokra/docker-ansible-playbook/blob/master/Dockerfile
 # Only d.bydzovsky did was addition of pywinrm module
-# Version dbydzovsky/ansible-in-docker:1.2
+# Version dbydzovsky/ansible-in-docker:1.3.1
 
 FROM alpine:3.7
 
@@ -63,4 +63,4 @@ ENV ANSIBLE_LIBRARY /ansible/library
 
 WORKDIR /ansible/playbooks
 
-ENTRYPOINT ["ansible-playbook"]
+ENTRYPOINT ["/bin/bash", "-c"]
