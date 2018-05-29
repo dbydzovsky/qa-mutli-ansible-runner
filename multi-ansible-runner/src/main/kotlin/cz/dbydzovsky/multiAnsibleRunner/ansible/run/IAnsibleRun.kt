@@ -6,5 +6,5 @@ interface IAnsibleRun {
 
     var workingDir: File?
 
-    fun toCommand(): String
+    fun toCommand(): List<String>
 }

@@ -6,7 +6,7 @@ class AnsibleVaultRun() : IAnsibleRun{
 
     override var workingDir: File? = null
 
-    override fun toCommand(): String {
-        return AnsibleRunType.ANSIBLE_VAULT.command
+    override fun toCommand(): List<String> {
+        return listOf(AnsibleRunType.ANSIBLE_VAULT.command)
     }
 }

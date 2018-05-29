@@ -14,11 +14,12 @@ class AnsiblePlaybookRun : IAnsibleRun {
 
     override var workingDir: File? = null
 
-    override fun toCommand(): String {
-        var command = "${AnsibleRunType.ANSIBLE_PLAYBOOK.command} $playbook"
+    override fun toCommand(): List<String> {
+        val command = mutableListOf(AnsibleRunType.ANSIBLE_PLAYBOOK.command, playbook ?: "")
         if (hosts != null) {
-            command += "-i $hosts"
+            command.add("-i")
+            command.add(hosts!!)
         }
-        return command
+        return command.toList()
     }
 }

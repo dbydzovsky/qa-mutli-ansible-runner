@@ -13,7 +13,7 @@ class Configuration {
     var clusterProvider: ClusterProvider? = null
     var ansibleAuthentication: AnsibleAuthentication? = null
 
-    val registered: MutableMap<Event, AnsiblePlaybookUpdate> = mutableMapOf()
+    val registered: MutableMap<Event, (IAnsibleRun, List<NodeInfo>?) -> IAnsibleRun> = mutableMapOf()
     val ansibleRuns: MutableList<IAnsibleRun> = mutableListOf()
 
     /**
@@ -27,7 +27,7 @@ class Configuration {
     /**
      * This function is called when environment is prepared and you need to update your ansible run playbooks
      */
-    fun register(update: AnsiblePlaybookUpdate): Configuration {
+    fun register(update: (IAnsibleRun, List<NodeInfo>?) -> IAnsibleRun): Configuration {
         this.registered[Event.AnsiblePlaybookUpdate] = update
         return this
     }
@@ -68,5 +68,3 @@ class Configuration {
 enum class Event {
     AnsiblePlaybookUpdate
 }
-
-typealias AnsiblePlaybookUpdate = (IAnsibleRun, List<NodeInfo>?) -> IAnsibleRun

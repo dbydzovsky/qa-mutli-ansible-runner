@@ -39,16 +39,15 @@ open class AnsibleInDockerRunner(private var dockerImage: String = ANSIBLE_IN_DO
     }
 
     override fun run(ansibleRun: IAnsibleRun) {
-        val c = StringBuilder(dockerImage)
-        c.append("docker run")
+        val c = mutableListOf("docker", "run")
         if (playbookPath != null) {
-            c.append(sharePlaybookPath(playbookPath!!))
+            c.add(sharePlaybookPath(playbookPath!!))
         }
-        c.append(toAnsibleSharedFolders(sharedFolders).joinToString { " " })
-        c.append(dockerImage)
-        c.append(ansibleRun.toCommand())
+        c.addAll(toAnsibleSharedFolders(sharedFolders))
+        c.add(dockerImage)
+        c.addAll(ansibleRun.toCommand())
 
-        c.toString().runCommand(ansibleRun.workingDir)
+        c.runCommand(ansibleRun.workingDir)
     }
 
     private fun toAnsibleSharedFolders(sharedFolders: List<Pair<String, String>>): List<String> {
@@ -61,7 +60,7 @@ open class AnsibleInDockerRunner(private var dockerImage: String = ANSIBLE_IN_DO
         return if (SystemUtils.IS_OS_WINDOWS && dockerType === DockerType.DockerToolbox) {
             "-v \"${source.toUnixPath()}:$target\""
         } else {
-            "$source:$target"
+            "-v $source:$target"
         }
     }
 

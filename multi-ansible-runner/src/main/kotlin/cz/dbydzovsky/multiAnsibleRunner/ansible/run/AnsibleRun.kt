@@ -8,9 +8,8 @@ class AnsibleRun: IAnsibleRun {
 
     override var workingDir: File? = null
 
-    override fun toCommand(): String {
-        return "${AnsibleRunType.ANSIBLE.command} $command"
-
+    override fun toCommand(): List<String> {
+        return listOf(AnsibleRunType.ANSIBLE.command, command)
     }
 
 }
