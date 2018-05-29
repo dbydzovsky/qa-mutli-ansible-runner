@@ -1,6 +1,6 @@
 # from https://github.com/walokra/docker-ansible-playbook/blob/master/Dockerfile
 # Only d.bydzovsky did was addition of pywinrm module
-# Version dbydzovsky/ansible-in-docker:1.3.1
+# Version dbydzovsky/ansible-in-docker:1.3.2
 
 FROM alpine:3.7
 

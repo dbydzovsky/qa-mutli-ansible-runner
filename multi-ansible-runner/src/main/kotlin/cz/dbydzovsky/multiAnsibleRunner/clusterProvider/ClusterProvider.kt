@@ -4,4 +4,5 @@ interface ClusterProvider {
 
     fun provide(): List<NodeInfo>?
 
+    fun destroy()
 }

@@ -1,37 +1,30 @@
 package cz.dbydzovsky.multiAnsibleRunner.tool
 
-import org.apache.commons.lang3.SystemUtils
 import java.io.File
 
-fun String.runCommand(workingDir: File? = null): Int {
-    println("Executing command: '$this' on path: ${workingDir?.path}")
-//    val commands = if (SystemUtils.IS_OS_LINUX) mutableListOf("/bin/bash", "-c") else mutableListOf()
-//    commands.addAll(this.split(" "))
-    val process = ProcessBuilder(*this.split(" ").toTypedArray())
-            .directory(workingDir)
+fun String.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Number {
+    return execute(this.split(" "), workingDir, envs)
+}
+
+fun Array<String>.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Number {
+    return execute(this.toList(), workingDir, envs)
+}
+
+fun List<String>.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Number {
+    return execute(this, workingDir, envs)
+}
+
+private fun execute(commands: List<String>, dir: File? = null, envs: Map<out String,String>? = null): Number {
+    println("Executing command: [${commands.joinToString(",") { it }}] on path: ${dir?.path}")
+    val processBuilder = ProcessBuilder(commands)
+            .directory(dir)
             .redirectOutput(ProcessBuilder.Redirect.INHERIT)
             .redirectError(ProcessBuilder.Redirect.INHERIT)
-            .start()
+    processBuilder.environment().putAll(envs ?: emptyMap())
+    val process = processBuilder.start()
     process.waitFor()
     return process.exitValue()
 }
-
-//fun String.runCommand(workingDir: File): String? {
-//    try {
-//        val parts = this.split("\\s".toRegex())
-//        val proc = ProcessBuilder(*parts.toTypedArray())
-//                .directory(workingDir)
-//                .redirectOutput(ProcessBuilder.Redirect.PIPE)
-//                .redirectError(ProcessBuilder.Redirect.PIPE)
-//                .start()
-//
-//        proc.waitFor(60, TimeUnit.MINUTES)
-//        return proc.inputStream.bufferedReader().readText()
-//    } catch(e: IOException) {
-//        e.printStackTrace()
-//        return null
-//    }
-//}
 
 fun String.toUnixPath(): String {
     return "/${this.replace("\\", "/").replace(":", "")}"

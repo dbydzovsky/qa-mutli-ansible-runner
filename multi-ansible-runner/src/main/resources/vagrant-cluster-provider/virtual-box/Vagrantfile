@@ -1,0 +1,66 @@
+# -*- mode: ruby -*-
+# # vi: set ft=ruby :
+
+Vagrant.require_version ">= 1.6.0"
+
+# Defaults for config options defined in CONFIG
+$num_instances = ENV["NODES_COUNT"].to_i
+$instance_name_prefix = "centos"
+$share_home = false
+$vm_gui = false
+$vm_memory = ENV["VM_MEMORY"].to_i
+$vm_cpus = ENV["VM_CPUS"].to_i
+$forwarded_ports = {}
+
+# Attempt to apply the deprecated environment variable NUM_INSTANCES to
+# $num_instances while allowing config.rb to override it
+if ENV["NUM_INSTANCES"].to_i > 0 && ENV["NUM_INSTANCES"]
+  $num_instances = ENV["NUM_INSTANCES"].to_i
+end
+
+# Use old vb_xxx config variables when set
+def vm_gui
+  $vb_gui.nil? ? $vm_gui : $vb_gui
+end
+
+def vm_memory
+  $vb_memory.nil? ? $vm_memory : $vb_memory
+end
+
+def vm_cpus
+  $vb_cpus.nil? ? $vm_cpus : $vb_cpus
+end
+
+Vagrant.configure("2") do |config|
+  # always use Vagrants insecure key
+  config.ssh.insert_key = false
+
+  config.vm.box = "centos/7"
+
+  # enable hostmanager
+  # config.hostmanager.enabled = true
+
+  # configure the host's /etc/hosts
+  # config.hostmanager.manage_host = true
+
+  (1..$num_instances).each do |i|
+    config.vm.define vm_name = "%s-%02d" % [$instance_name_prefix, i] do |config|
+      config.vm.hostname = vm_name
+
+      # foward Docker registry port to host for node 01
+      # if i == 1
+      #   config.vm.network :forwarded_port, guest: 5000, host: 5000
+      # end
+
+      config.vm.provider :virtualbox do |vb|
+        vb.gui = vm_gui
+        vb.memory = vm_memory
+        vb.cpus = vm_cpus
+      end
+
+      ip = "172.17.11.#{i+100}"
+      config.vm.network :private_network, ip: ip
+
+    end
+  end
+end
