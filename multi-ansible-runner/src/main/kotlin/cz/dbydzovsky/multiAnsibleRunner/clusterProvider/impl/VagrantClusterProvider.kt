@@ -9,27 +9,38 @@ import java.io.File
 
 open class VagrantClusterProvider : ClusterProvider {
 
-    protected open val vagrantfile: File = File("vagrant-cluster-provider/virtual-box/Vagrantfile".asResource(this).file)
+    open var vagrantfile: File = File("vagrant-cluster-provider/virtual-box/Vagrantfile".asResource(this).file)
+
+    open var nodeNames = mutableListOf<String>()
+
+//    open var private_key_path: String? = null
+//    open var public_key_path: String? = null
+
+//    open var ip_template = "172.17.11.#{i+100}"
+    open var ip_template = "192.168.99.#{i+100}"
 
     override fun provide(): List<NodeInfo> {
 
-        val nodeCount = 3
-
         val envs = mutableMapOf(
-                Pair("NODES_COUNT", "$nodeCount"),
-                Pair("VM_MEMORY", "2048"),
-                Pair("VM_CPUS", "2")
+                Pair("NODES_COUNT", "${nodeNames.size}"),
+                Pair("NODE_NAMES", nodeNames.joinToString(",")),
+                Pair("VM_MEMORY", "1028"),
+                Pair("VM_CPUS", "2"),
+//                Pair("PRIVATE_KEY_PATH", private_key_path ?: ""),
+//                Pair("PUBLIC_KEY_PATH", public_key_path ?: ""),
+                Pair("IP_TEMPLATE", ip_template)
         )
         listOf("vagrant", "up", "--parallel").runCommand(vagrantfile.parentFile, envs)
 
-        return (1..nodeCount).map {
+        return (1..nodeNames.size).map {
             NodeInfo(UsernamePasswordAuthentication("vagrant", "vagrant"),
-                    "172.17.11.${it + 100}",
-                    "centos-0$it")
+                    "192.168.99.${it + 100}",
+                    nodeNames[it-1])
         }
     }
 
     override fun destroy() {
         listOf("vagrant", "destroy", "-f").runCommand(vagrantfile.parentFile)
     }
+
 }

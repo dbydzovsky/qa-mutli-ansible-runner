@@ -10,6 +10,9 @@ import org.apache.commons.lang3.SystemUtils
 
 open class AnsibleInDockerRunner(private var dockerImage: String = ANSIBLE_IN_DOCKER_IMAGE()) : AnsibleRunner {
 
+//    var privateSsh = File("ssh/id_rsa".asResource(this).path)
+//    var publicSsh = File("ssh/id_rsa.pub".asResource(this).path)
+
     private val dockerType: DockerType = DockerTypeSurveyor.dockerType
 
     private var playbookPath: String? = null
@@ -41,11 +44,13 @@ open class AnsibleInDockerRunner(private var dockerImage: String = ANSIBLE_IN_DO
     override fun run(ansibleRun: IAnsibleRun) {
         val c = mutableListOf("docker", "run")
         if (playbookPath != null) {
-            c.add(sharePlaybookPath(playbookPath!!))
+            c.addAll(sharePlaybookPath(playbookPath!!))
         }
+//        c.addAll(toAnsibleSharedFolder(privateSsh.canonicalPath, "/root/.ssh/id_rsa"))
+//        c.addAll(toAnsibleSharedFolder(publicSsh.canonicalPath, "/root/.ssh/id_rsa.pub"))
         c.addAll(toAnsibleSharedFolders(sharedFolders))
         c.add(dockerImage)
-        c.addAll(ansibleRun.toCommand())
+        c.add("\"" + ansibleRun.toCommand().joinToString(" ") + "\"")
 
         c.runCommand(ansibleRun.workingDir)
     }
@@ -53,18 +58,18 @@ open class AnsibleInDockerRunner(private var dockerImage: String = ANSIBLE_IN_DO
     private fun toAnsibleSharedFolders(sharedFolders: List<Pair<String, String>>): List<String> {
         return sharedFolders.map {
             return@map toAnsibleSharedFolder(it.first, it.second)
-        }
+        }.flatten()
     }
 
-    private fun toAnsibleSharedFolder(source: String, target: String): String {
+    private fun toAnsibleSharedFolder(source: String, target: String): List<String> {
         return if (SystemUtils.IS_OS_WINDOWS && dockerType === DockerType.DockerToolbox) {
-            "-v \"${source.toUnixPath()}:$target\""
+            listOf("--mount", "type=bind,source=\"${source.toUnixPath()}\",target=\"$target\"")
         } else {
-            "-v $source:$target"
+            listOf("--mount", "type=bind,source=\"$source\",target=\"$target\"")
         }
     }
 
-    private fun sharePlaybookPath(path: String):String{
+    private fun sharePlaybookPath(path: String): List<String>{
         return toAnsibleSharedFolder(path, "/ansible/playbooks")
     }
 }
