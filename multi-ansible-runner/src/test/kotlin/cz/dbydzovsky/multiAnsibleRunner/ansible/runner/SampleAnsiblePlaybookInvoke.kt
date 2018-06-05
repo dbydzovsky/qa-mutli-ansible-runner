@@ -1,4 +1,5 @@
 package cz.dbydzovsky.multiAnsibleRunner.ansible.runner
+
 import cz.dbydzovsky.multiAnsibleRunner.ansible.run.playbook.AnsiblePlaybookRunBuilder
 import cz.dbydzovsky.multiAnsibleRunner.application.MultiAnsibleRunner
 import cz.dbydzovsky.multiAnsibleRunner.clusterProvider.auth.UsernamePasswordAuthentication
@@ -32,7 +33,6 @@ internal class SampleAnsiblePlaybookInvoke {
     }
 
 
-
     @Test
     fun `run ansible playbook in vagrant virtuals`() {
         val hosts = File.createTempFile("hosts", ".file")
@@ -43,29 +43,29 @@ internal class SampleAnsiblePlaybookInvoke {
                 .withHosts("inventories/hosts.file")
                 .withWorkingDir(File(pingPlaybook.path).parentFile)
 
-        conf.addAnsibleRun(playbookBuilder.build())
+        val ansibleRunner = AnsibleInDockerRunner()
+                .setPlaybookPath(File(pingPlaybook.path).parentFile.canonicalPath)
+                .addSharedFolder(hosts.canonicalPath, "/ansible/playbooks/inventories/hosts.file")
+
 
         val provider = VagrantClusterProvider()
-        provider.nodeNames.add("Mercury")
-        provider.nodeNames.add("Venus")
-        provider.nodeNames.add("Earth")
-//        provider.nodeNames.add("Mars")
-//        provider.nodeNames.add("Mars")
-        conf.setClusterProvider(provider)
+                .addNodeName("Mercury")
+                .addNodeName("Venus")
+                .addNodeName("Earth")
+                .addNodeName("Mars")
+
 
         conf.register { ansibleRun, info ->
             hosts.appendText("[all]\n")
             info?.forEach {
-                    val authentication = it.authentication as UsernamePasswordAuthentication
-                    hosts.appendText("${it.hostname}\tansible_host=${it.ip}\tansible_connection=ssh\tansible_user=${authentication.username}\tansible_password=${authentication.password}\n")
-                }
+                val authentication = it.authentication as UsernamePasswordAuthentication
+                hosts.appendText("${it.hostname}\tansible_host=${it.ip}\tansible_connection=ssh\tansible_user=${authentication.username}\tansible_password=${authentication.password}\n")
+            }
             return@register ansibleRun
         }
-
-        val ansibleRunner = AnsibleInDockerRunner()
-        ansibleRunner.setPlaybookPath(File(pingPlaybook.path).parentFile.canonicalPath)
-        ansibleRunner.addSharedFolder(hosts.canonicalPath, "/ansible/playbooks/inventories/hosts.file")
+        conf.setClusterProvider(provider)
         conf.setAnsibleRunner(ansibleRunner)
+        conf.addAnsibleRun(playbookBuilder.build())
         MultiAnsibleRunner().run(conf)
     }
 

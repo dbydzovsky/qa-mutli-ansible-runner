@@ -41,7 +41,7 @@ open class AnsibleInDockerRunner(private var dockerImage: String = ANSIBLE_IN_DO
         return this
     }
 
-    override fun run(ansibleRun: IAnsibleRun) {
+    override fun run(ansibleRun: IAnsibleRun): Int {
         val c = mutableListOf("docker", "run")
         if (playbookPath != null) {
             c.addAll(sharePlaybookPath(playbookPath!!))
@@ -52,7 +52,7 @@ open class AnsibleInDockerRunner(private var dockerImage: String = ANSIBLE_IN_DO
         c.add(dockerImage)
         c.add("\"" + ansibleRun.toCommand().joinToString(" ") + "\"")
 
-        c.runCommand(ansibleRun.workingDir)
+        return c.runCommand(ansibleRun.workingDir)
     }
 
     private fun toAnsibleSharedFolders(sharedFolders: List<Pair<String, String>>): List<String> {

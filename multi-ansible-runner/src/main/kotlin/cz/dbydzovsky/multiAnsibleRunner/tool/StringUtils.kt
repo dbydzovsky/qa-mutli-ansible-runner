@@ -2,23 +2,23 @@ package cz.dbydzovsky.multiAnsibleRunner.tool
 
 import java.io.File
 
-fun String.runCommandWithoutOutput(workingDir: File? = null, envs: Map<out String,String>? = null): Number {
+fun String.runCommandWithoutOutput(workingDir: File? = null, envs: Map<out String,String>? = null): Int {
     return execute(this.split(" "), workingDir, envs, false)
 }
 
-fun String.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Number {
+fun String.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Int {
     return execute(this.split(" "), workingDir, envs)
 }
 
-fun Array<String>.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Number {
+fun Array<String>.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Int {
     return execute(this.toList(), workingDir, envs)
 }
 
-fun List<String>.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Number {
+fun List<String>.runCommand(workingDir: File? = null, envs: Map<out String,String>? = null): Int {
     return execute(this, workingDir, envs)
 }
 
-private fun execute(commands: List<String>, dir: File? = null, envs: Map<out String,String>? = null, output: Boolean? = true): Number {
+private fun execute(commands: List<String>, dir: File? = null, envs: Map<out String,String>? = null, output: Boolean? = true): Int {
     if (output == true) {
         println("Executing command: [${commands.joinToString(",") { it }}] on path: ${dir?.path}")
     }
