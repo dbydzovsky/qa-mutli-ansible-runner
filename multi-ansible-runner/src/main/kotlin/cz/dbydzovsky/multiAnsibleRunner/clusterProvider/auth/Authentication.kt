@@ -1,4 +1,5 @@
 package cz.dbydzovsky.multiAnsibleRunner.clusterProvider.auth
 
-interface Authentication {
-}
+import java.io.Serializable
+
+interface Authentication: Serializable

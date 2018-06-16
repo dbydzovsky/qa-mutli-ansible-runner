@@ -32,6 +32,16 @@ class AnsiblePlaybookRunBuilder {
         return this
     }
 
+    fun withJsonEnv(name: String, value: String): AnsiblePlaybookRunBuilder {
+        ansibleRun.jsonEnvs.add(Pair(name, value))
+        return this
+    }
+
+    fun withJsonEnvs(envs: List<Pair<String, String>>): AnsiblePlaybookRunBuilder {
+        ansibleRun.jsonEnvs.addAll(envs)
+        return this
+    }
+
     fun withEnvs(envs: List<Pair<String, String>>): AnsiblePlaybookRunBuilder {
         ansibleRun.envs.addAll(envs)
         return this

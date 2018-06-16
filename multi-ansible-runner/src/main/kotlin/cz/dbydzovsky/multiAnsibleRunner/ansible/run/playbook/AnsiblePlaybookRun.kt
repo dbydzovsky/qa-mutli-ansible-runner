@@ -16,6 +16,8 @@ class AnsiblePlaybookRun : IAnsibleRun {
 
     var envs: MutableList<Pair<String, String>> = mutableListOf()
 
+    var jsonEnvs: MutableList<Pair<String, String>> = mutableListOf()
+
     override var workingDir: File? = null
 
     override fun toCommand(): List<String> {
@@ -26,7 +28,11 @@ class AnsiblePlaybookRun : IAnsibleRun {
         }
         envs.forEach {
             command.add("-e")
-            command.add("${it.first}=${it.second}")
+            command.add("'${it.first}=${it.second}'")
+        }
+        jsonEnvs.forEach {
+            command.add("-e")
+            command.add("'{\"${it.first}\":${it.second}}'")
         }
         additionalCommands.forEach {
             command.add(it)
