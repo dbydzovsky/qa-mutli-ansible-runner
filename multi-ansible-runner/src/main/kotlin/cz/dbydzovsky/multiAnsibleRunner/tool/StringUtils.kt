@@ -1,6 +1,10 @@
 package cz.dbydzovsky.multiAnsibleRunner.tool
 
 import java.io.File
+import java.util.logging.Level
+import java.util.logging.Logger
+
+val logger = Logger.getLogger("commandExecutor")
 
 fun String.runCommandWithoutOutput(workingDir: File? = null, envs: Map<out String,String>? = null): Int {
     return execute(this.split(" "), workingDir, envs, false)
@@ -20,7 +24,7 @@ fun List<String>.runCommand(workingDir: File? = null, envs: Map<out String,Strin
 
 private fun execute(commands: List<String>, dir: File? = null, envs: Map<out String,String>? = null, output: Boolean? = true): Int {
     if (output == true) {
-        println("Executing command: [${commands.joinToString(",") { it }}] on path: ${dir?.path}")
+        logger.log(Level.INFO,  "Executing command: [${commands.joinToString(",") { it }}] on path: ${dir?.path}")
     }
     val processBuilder = ProcessBuilder(commands)
             .directory(dir)

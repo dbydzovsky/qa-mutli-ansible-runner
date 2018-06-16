@@ -6,7 +6,10 @@ Vagrant.require_version ">= 1.6.0"
 # Defaults for config options defined in CONFIG
 $num_instances = ENV["NODES_COUNT"].to_i
 $node_names = ENV["NODE_NAMES"].split(",")
+$ip_addresses = ENV["IP_ADDRESSES"].split(",")
 $share_home = false
+$shared_folder = ENV["SHARED_FOLDER"]
+$target_shared_folder = ENV["TARGET_SHARED_FOLDER"]
 $vm_gui = false
 $vm_memory = ENV["VM_MEMORY"].to_i
 $vm_cpus = ENV["VM_CPUS"].to_i
@@ -50,9 +53,10 @@ Vagrant.configure("2") do |config|
   # config.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /root/.ssh/authorized_keys"
   # config.vm.provision 'shell', inline: "echo #{ssh_pub_key} >> /home/vagrant/.ssh/authorized_keys", privileged: false
 
-  config.vm.box = "centos/7"
+  config.vm.box = ENV["VM_BOX"]
   # Prevent Vagrant from mounting the default /vagrant synced folder
   config.vm.synced_folder '.', '/vagrant', disabled: true
+  # config.vm.synced_folder $shared_folder, $target_shared_folder, create: true, type: "nfs"
 
   # enable hostmanager
   # config.hostmanager.enabled = true
@@ -63,7 +67,6 @@ Vagrant.configure("2") do |config|
   (1..$num_instances).each do |i|
     config.vm.define vm_name = "%s-%02d" % [$node_names[(i-1)], i] do |config|
       config.vm.hostname = vm_name
-
       # foward Docker registry port to host for node 01
       # if i == 1
       #   config.vm.network :forwarded_port, guest: 5000, host: 5000
@@ -74,8 +77,12 @@ Vagrant.configure("2") do |config|
         vb.memory = vm_memory
         vb.cpus = vm_cpus
       end
+      config.vm.provider "vmware_desktop" do |v|
+        v.vmx["memsize"] = vm_memory
+        v.vmx["numvcpus"] = vm_cpus
+      end
 
-      ip = "192.168.99.#{i+100}"
+      ip = $ip_addresses[i-1]
       config.vm.network :private_network, ip: ip
 
     end
