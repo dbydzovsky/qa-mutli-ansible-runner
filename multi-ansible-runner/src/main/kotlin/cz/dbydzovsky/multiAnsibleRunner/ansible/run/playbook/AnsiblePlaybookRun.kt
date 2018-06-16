@@ -12,6 +12,10 @@ class AnsiblePlaybookRun : IAnsibleRun {
 
     var hosts: String? = null
 
+    var additionalCommands: MutableList<String> = mutableListOf()
+
+    var envs: MutableList<Pair<String, String>> = mutableListOf()
+
     override var workingDir: File? = null
 
     override fun toCommand(): List<String> {
@@ -19,6 +23,13 @@ class AnsiblePlaybookRun : IAnsibleRun {
         if (hosts != null) {
             command.add("-i")
             command.add(hosts!!)
+        }
+        envs.forEach {
+            command.add("-e")
+            command.add("${it.first}=${it.second}")
+        }
+        additionalCommands.forEach {
+            command.add(it)
         }
         return command.toList()
     }

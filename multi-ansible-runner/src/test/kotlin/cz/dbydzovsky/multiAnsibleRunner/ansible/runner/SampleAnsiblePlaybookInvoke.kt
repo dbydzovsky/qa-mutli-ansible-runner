@@ -50,9 +50,6 @@ internal class SampleAnsiblePlaybookInvoke {
 
         val provider = VagrantClusterProvider()
                 .addNodeName("Mercury")
-                .addNodeName("Venus")
-                .addNodeName("Earth")
-                .addNodeName("Mars")
 
 
         conf.register { ansibleRun, info ->
@@ -67,6 +64,21 @@ internal class SampleAnsiblePlaybookInvoke {
         conf.setAnsibleRunner(ansibleRunner)
         conf.addAnsibleRun(playbookBuilder.build())
         MultiAnsibleRunner().run(conf)
+    }
+
+    @Test
+    fun `asks for state of virtuals` () {
+        val provider = VagrantClusterProvider()
+                .addNodeName("Mercury")
+        provider.execute(listOf("status", "1a4844904551418b8b7406945d6ef869"))
+    }
+
+
+    @Test
+    fun `asks for state of virtuals - vagrant box list` () {
+        val provider = VagrantClusterProvider()
+//                .addNodeName("Mercury")
+        provider.execute(listOf("box", "list", "-i"))
     }
 
     @Test
