@@ -2,9 +2,10 @@ package cz.dbydzovsky.multiAnsibleRunner.ansible.run.playbook
 
 import cz.dbydzovsky.multiAnsibleRunner.ansible.run.AnsibleRunType
 import cz.dbydzovsky.multiAnsibleRunner.ansible.run.IAnsibleRun
+import org.apache.commons.text.StringEscapeUtils
 import java.io.File
 
-class AnsiblePlaybookRun : IAnsibleRun {
+open class AnsiblePlaybookRun : IAnsibleRun {
 
     var name: String? = null
 
@@ -18,6 +19,8 @@ class AnsiblePlaybookRun : IAnsibleRun {
 
     var jsonEnvs: MutableList<Pair<String, String>> = mutableListOf()
 
+    var fileEnvs: MutableList<String> = mutableListOf()
+
     override var workingDir: File? = null
 
     override fun toCommand(): List<String> {
@@ -28,15 +31,23 @@ class AnsiblePlaybookRun : IAnsibleRun {
         }
         envs.forEach {
             command.add("-e")
-            command.add("'${it.first}=${it.second}'")
+            command.add("'${it.first}=\"${it.second}\"'")
         }
         jsonEnvs.forEach {
             command.add("-e")
-            command.add("'{\"${it.first}\":${it.second}}'")
+            command.add("\"{\\\"${it.first}\\\":${escape(it.second)}}\"")
         }
         additionalCommands.forEach {
             command.add(it)
         }
+        fileEnvs.forEach {
+            command.add("-e")
+            command.add("\"@$it\"")
+        }
         return command.toList()
+    }
+
+    fun escape(raw: String): String {
+        return StringEscapeUtils.escapeJson(raw)
     }
 }

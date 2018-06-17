@@ -31,8 +31,8 @@ open class VagrantClusterProvider(
     open var vm_cpus = "1"
     open var vm_box = "centos/7"
 
-//    open var sharedFolder: String? = null
-//    open var targetSharedFolder = "/shared"
+    open var sharedFolder: String? = null
+    open var targetSharedFolder = "/shared"
 
     open var parallel = true
     /**
@@ -94,18 +94,18 @@ open class VagrantClusterProvider(
     }
 
     private fun getEnvironmentForVagrantfile(ipAddresses: List<String>): MutableMap<String, String> {
-//        if (sharedFolder == null) {
-//            sharedFolder = vagrantfile.parentFile.canonicalPath
-//        }
+        if (sharedFolder == null) {
+            sharedFolder = vagrantfile.parentFile.canonicalPath
+        }
         return mutableMapOf(
                 Pair("NODES_COUNT", "${nodeNames.size}"),
                 Pair("NODE_NAMES", nodeNames.joinToString(",")),
                 Pair("VM_MEMORY", vm_memory),
                 Pair("VM_CPUS", vm_cpus),
                 Pair("VM_BOX", vm_box),
-                Pair("IP_ADDRESSES", ipAddresses.joinToString(","))
-//                Pair("SHARED_FOLDER", sharedFolder!!),
-//                Pair("TARGET_SHARED_FOLDER", targetSharedFolder)
+                Pair("IP_ADDRESSES", ipAddresses.joinToString(",")),
+                Pair("SHARED_FOLDER", sharedFolder!!),
+                Pair("TARGET_SHARED_FOLDER", targetSharedFolder)
 //                Pair("PRIVATE_KEY_PATH", private_key_path ?: ""),
 //                Pair("PUBLIC_KEY_PATH", public_key_path ?: ""),
         )

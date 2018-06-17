@@ -47,6 +47,16 @@ class AnsiblePlaybookRunBuilder {
         return this
     }
 
+    fun withFileEnv(path: String): AnsiblePlaybookRunBuilder {
+        ansibleRun.fileEnvs.add(path)
+        return this
+    }
+
+    fun withFileEnvs(paths: List<String>): AnsiblePlaybookRunBuilder {
+        ansibleRun.fileEnvs.addAll(paths)
+        return this
+    }
+
     fun authenticateWith(ansibleAuthentication: AnsibleAuthentication): AnsiblePlaybookRunBuilder {
         ansibleAuthentication.authenticate(ansibleRun)
         return this

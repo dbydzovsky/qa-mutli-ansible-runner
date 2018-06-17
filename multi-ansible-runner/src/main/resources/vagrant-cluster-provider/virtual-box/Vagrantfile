@@ -56,7 +56,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = ENV["VM_BOX"]
   # Prevent Vagrant from mounting the default /vagrant synced folder
   config.vm.synced_folder '.', '/vagrant', disabled: true
-  # config.vm.synced_folder $shared_folder, $target_shared_folder, create: true, type: "nfs"
+  config.vm.synced_folder $shared_folder, $target_shared_folder, create: true, type: "rsync"
 
   # enable hostmanager
   # config.hostmanager.enabled = true
