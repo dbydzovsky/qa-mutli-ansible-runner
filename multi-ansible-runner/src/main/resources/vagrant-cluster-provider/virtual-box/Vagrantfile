@@ -56,7 +56,7 @@ Vagrant.configure("2") do |config|
   config.vm.box = ENV["VM_BOX"]
   # Prevent Vagrant from mounting the default /vagrant synced folder
   config.vm.synced_folder '.', '/vagrant', disabled: true
-  config.vm.synced_folder $shared_folder, $target_shared_folder, create: true, type: "rsync"
+  config.vm.synced_folder $shared_folder, $target_shared_folder, create: true, type: "rsync", rsync__verbose: "true"
 
   # enable hostmanager
   # config.hostmanager.enabled = true
@@ -65,7 +65,7 @@ Vagrant.configure("2") do |config|
   # config.hostmanager.manage_host = true
 
   (1..$num_instances).each do |i|
-    config.vm.define vm_name = "%s-%02d" % [$node_names[(i-1)], i] do |config|
+    config.vm.define vm_name = "%s" % [$node_names[(i-1)], i] do |config|
       config.vm.hostname = vm_name
       # foward Docker registry port to host for node 01
       # if i == 1

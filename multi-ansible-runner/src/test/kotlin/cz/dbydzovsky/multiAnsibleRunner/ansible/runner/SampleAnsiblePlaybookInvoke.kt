@@ -32,6 +32,36 @@ internal class SampleAnsiblePlaybookInvoke {
         MultiAnsibleRunner().run(conf)
     }
 
+    @Test
+    fun `status` () {
+
+
+        val provider = VagrantClusterProvider()
+        provider.nodeNames = mutableListOf("Earth")
+
+
+        provider.getStatus()
+
+    }
+
+    @Test
+    fun `suspend` () {
+
+        val conf = Configuration()
+
+        val playbookBuilder = AnsiblePlaybookRunBuilder()
+                .withPlaybook(playbookName)
+                .withWorkingDir(File(pingPlaybook.path).parentFile)
+        val provider = VagrantClusterProvider()
+        provider.nodeNames = mutableListOf("Earth")
+
+        conf.setClusterProvider(provider)
+        conf.addAnsibleRun(playbookBuilder.build())
+        MultiAnsibleRunner().run(conf)
+
+        provider.suspend(listOf("Earth"))
+
+    }
 
     @Test
     fun `run ansible playbook in vagrant virtuals`() {

@@ -2,11 +2,15 @@ package cz.dbydzovsky.multiAnsibleRunner.clusterProvider.impl
 
 import cz.dbydzovsky.multiAnsibleRunner.clusterProvider.ClusterProvider
 import cz.dbydzovsky.multiAnsibleRunner.clusterProvider.NodeInfo
+import cz.dbydzovsky.multiAnsibleRunner.clusterProvider.NodeStatus
 import cz.dbydzovsky.multiAnsibleRunner.clusterProvider.auth.UsernamePasswordAuthentication
 import cz.dbydzovsky.multiAnsibleRunner.tool.asResource
 import cz.dbydzovsky.multiAnsibleRunner.tool.runCommand
+import cz.dbydzovsky.multiAnsibleRunner.tool.runCommandAndRead
 import org.junit.platform.commons.logging.LoggerFactory
+import java.io.BufferedOutputStream
 import java.io.File
+import java.io.OutputStream
 
 open class VagrantClusterProvider(
         private val workingDir: File = File(System.getProperty("java.io.tmpdir") + "/" + defaultUniqueStorage),
@@ -75,11 +79,40 @@ open class VagrantClusterProvider(
         }
     }
 
+    override fun halt(nodes: List<String>): List<Int> {
+        return nodes.map{
+            return@map listOf("vagrant", "halt", it).runCommand(vagrantfile.parentFile, getEnvironmentForVagrantfile(createIpAddresses()))
+        }
+    }
+
+    override fun suspend(nodes: List<String>): List<Int> {
+        return nodes.map{
+            return@map listOf("vagrant", "suspend", it).runCommand(vagrantfile.parentFile, getEnvironmentForVagrantfile(createIpAddresses()))
+        }
+    }
+
+    override fun getStatus(): List<NodeStatus> {
+        val statuses = mutableListOf<NodeStatus>()
+        val result = listOf("vagrant", "status", "--machine-readable").runCommandAndRead(vagrantfile.parentFile, getEnvironmentForVagrantfile(createIpAddresses()))
+        val lines = result.second.bufferedReader().readLines()
+        lines.forEach { line ->
+            val splitted = line.split(",")
+            val timestamp = splitted[0]
+            val nodeName = splitted[1]
+            val property = splitted[2]
+            val value= splitted[3]
+            if (property == "state") {
+                statuses.add(NodeStatus(nodeName, value))
+            }
+        }
+        return statuses
+    }
+
     /**
      * Launches command "vagrant <params>" in folder with given vagrantfile and with set environment.
      */
     fun execute(params: List<String>): Int {
-        return listOf("vagrant").plus(params).plus(getProvider()).runCommand(vagrantfile.parentFile, getEnvironmentForVagrantfile(createIpAddresses()))
+        return listOf("vagrant").plus(params).runCommand(vagrantfile.parentFile, getEnvironmentForVagrantfile(createIpAddresses()))
     }
 
     /**
